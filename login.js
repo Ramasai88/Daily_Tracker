@@ -26,7 +26,7 @@ async function checkAuth() {
   
   // If there's an active session, redirect to index
   if (session) {
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
     return true;
   }
   return false;
@@ -41,7 +41,7 @@ async function checkAuth() {
 // Listen for auth changes
 supabase.auth.onAuthStateChange((event, session) => {
   if (session) {
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
   }
 });
 
@@ -130,7 +130,7 @@ form.addEventListener('submit', async (e) => {
       if (error) throw error;
       
       // Redirect to index
-      window.location.href = 'index.html';
+      window.location.href = '/index.html';
     }
   } catch (error) {
     console.error('Auth error:', error);

@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   if (!user) {
     console.warn('No user logged in. Redirecting to login...');
-    window.location.replace("login.html");
+    window.location.replace("/login.html");
     return;
   }
   
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 6. Set up logout button
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
     await supabase.auth.signOut();
-    window.location.replace("login.html");
+    window.location.replace("/login.html");
   });
 
   // 6. Restore pending reminders from stored tasks
