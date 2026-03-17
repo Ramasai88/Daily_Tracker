@@ -247,6 +247,17 @@
   color: var(--text-secondary, #8888a8);
 }
 
+/* Logout button in app */
+#logout-btn {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+#logout-btn:hover {
+  color: #ff5c7a;
+  border-color: #ff5c7a;
+}
+
 /* Animations */
 @keyframes fadeUp {
   from {

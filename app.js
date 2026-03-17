@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    console.warn('No user logged in. App will not load tasks.');
-    document.body.innerHTML = '<div style="padding:40px;text-align:center;"><h1>Please log in</h1><p>You must be logged in to use this app.</p></div>';
+    console.warn('No user logged in. Redirecting to login...');
+    window.location.href = 'login.html';
     return;
   }
   
@@ -66,6 +66,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
     dateEl.textContent = new Date().toLocaleDateString(undefined, opts);
   }
+
+  // 6. Set up logout button
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  });
 
   // 6. Restore pending reminders from stored tasks
   TaskManager.getTodayTasks().forEach(t => {

@@ -20,11 +20,23 @@ const toggleBtn = document.getElementById('toggle-btn');
 // State
 let isSignupMode = false;
 
-// Check if user is already logged in
-const { data: { user } } = await supabase.auth.getUser();
-if (user) {
-  window.location.href = 'index.html';
+// Check auth state on load
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  // If there's an active session, redirect to index
+  if (session) {
+    window.location.href = 'index.html';
+    return true;
+  }
+  return false;
 }
+
+// Initialize
+(async () => {
+  const hasSession = await checkAuth();
+  if (hasSession) return;
+})();
 
 // Toggle between login and signup
 toggleBtn.addEventListener('click', () => {
