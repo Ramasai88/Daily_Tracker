@@ -29,12 +29,16 @@ let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
+  console.log("Auth check started");
+
   // 1. Get current user first
   const { data: { user } } = await supabase.auth.getUser();
   
+  console.log("User:", user);
+  
   if (!user) {
     console.warn('No user logged in. Redirecting to login...');
-    window.location.href = 'login.html';
+    window.location.replace("login.html");
     return;
   }
   
@@ -70,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 6. Set up logout button
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
     await supabase.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.replace("login.html");
   });
 
   // 6. Restore pending reminders from stored tasks
