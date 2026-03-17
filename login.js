@@ -38,6 +38,13 @@ async function checkAuth() {
   if (hasSession) return;
 })();
 
+// Listen for auth changes
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    window.location.href = 'index.html';
+  }
+});
+
 // Toggle between login and signup
 toggleBtn.addEventListener('click', () => {
   isSignupMode = !isSignupMode;
