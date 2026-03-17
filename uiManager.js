@@ -337,10 +337,14 @@ export function renderHeatmap() {
       const currentDate = new Date(startDate);
       currentDate.setDate(currentDate.getDate() + w * 7 + d);
       const dateStr = currentDate.toISOString().slice(0, 10);
-      const dayData = heatmapData[dateStr] || { level: 0, completed: 0 };
+      const dayData = heatmapData[dateStr] || { level: 0, completed: 0, total: 0, percentage: 0 };
       
-      const title = `${dateStr}: ${dayData.completed} tasks completed`;
-      html += `<div class="heatmap-cell level-${dayData.level}" title="${title}"></div>`;
+      // Enhanced tooltip with percentage
+      const tooltipText = dayData.total > 0 
+        ? `${dateStr}\n${dayData.completed}/${dayData.total} tasks (${dayData.percentage}% completed)`
+        : `${dateStr}\nNo tasks`;
+      
+      html += `<div class="heatmap-cell level-${dayData.level}" data-date="${dateStr}" title="${tooltipText.replace('\n', ' - ')}"></div>`;
     }
     html += '</div>';
   }
@@ -357,6 +361,92 @@ export function renderHeatmap() {
   html += '</div>';
   
   container.innerHTML = html;
+  
+  // Add click handlers to cells
+  container.querySelectorAll('.heatmap-cell[data-date]').forEach(cell => {
+    cell.style.cursor = 'pointer';
+    cell.addEventListener('click', () => {
+      const date = cell.dataset.date;
+      showHeatmapTaskPanel(date);
+    });
+  });
+}
+
+// ─── HEATMAP TASK PANEL ───────────────────────────────────────────────────────
+let currentHeatmapDate = null;
+let currentHeatmapFilter = 'all';
+
+function showHeatmapTaskPanel(date) {
+  currentHeatmapDate = date;
+  renderHeatmapTaskPanel();
+}
+
+export function renderHeatmapTaskPanel() {
+  const panel = document.getElementById('heatmap-task-panel');
+  if (!panel) return;
+  
+  if (!currentHeatmapDate) {
+    panel.innerHTML = '<div class="heatmap-panel-empty">Click a day on the heatmap to view tasks</div>';
+    panel.style.display = 'none';
+    return;
+  }
+  
+  panel.style.display = 'block';
+  const tasks = HeatmapManager.getTasksByDate(currentHeatmapDate);
+  const stats = HeatmapManager.getTaskStatsByDate(currentHeatmapDate);
+  
+  // Format date nicely
+  const dateObj = new Date(currentHeatmapDate);
+  const formattedDate = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  
+  // Filter tasks
+  let filteredTasks = tasks;
+  if (currentHeatmapFilter === 'completed') {
+    filteredTasks = tasks.filter(t => t.completed);
+  } else if (currentHeatmapFilter === 'pending') {
+    filteredTasks = tasks.filter(t => !t.completed);
+  }
+  
+  let html = `
+    <div class="heatmap-panel-header">
+      <h3>${formattedDate}</h3>
+      <div class="heatmap-panel-stats">
+        <span class="heatmap-stat">${stats.completed}/${stats.total} completed</span>
+        <span class="heatmap-stat">${stats.percentage}%</span>
+      </div>
+    </div>
+    <div class="heatmap-panel-filters">
+      <button class="heatmap-filter-btn ${currentHeatmapFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>
+      <button class="heatmap-filter-btn ${currentHeatmapFilter === 'completed' ? 'active' : ''}" data-filter="completed">Completed</button>
+      <button class="heatmap-filter-btn ${currentHeatmapFilter === 'pending' ? 'active' : ''}" data-filter="pending">Pending</button>
+    </div>
+  `;
+  
+  if (filteredTasks.length === 0) {
+    html += '<div class="heatmap-panel-empty">No tasks for this date</div>';
+  } else {
+    html += '<div class="heatmap-panel-tasks">';
+    filteredTasks.forEach(task => {
+      html += `
+        <div class="heatmap-task ${task.completed ? 'completed' : ''}">
+          <span class="heatmap-task-check">${task.completed ? '✓' : '○'}</span>
+          <span class="heatmap-task-title">${esc(task.title)}</span>
+          <span class="badge priority-badge-${task.priority}">${task.priority}</span>
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  panel.innerHTML = html;
+  
+  // Add filter button handlers
+  panel.querySelectorAll('.heatmap-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentHeatmapFilter = btn.dataset.filter;
+      renderHeatmapTaskPanel();
+    });
+  });
 }
 
 // ─── RENDER HISTORY ───────────────────────────────────────────────────────────

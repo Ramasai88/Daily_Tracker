@@ -2,9 +2,14 @@ import { TaskManager } from './taskManager.js';
 import { SettingsManager } from './settingsManager.js';
 import { ProgressEngine } from './progressEngine.js';
 import { StreakEngine } from './streakEngine.js';
-import { StorageManager, todayStr } from './storageManager.js';
+import { StorageManager, todayStr, setCurrentUser } from './storageManager.js';
 import { HeatmapManager } from './heatmapManager.js';
 import { HistoryManager } from './historyManager.js';
+import { supabase } from './supabaseClient.js';
+
+
+
+
 
 import {
   initTaskForm,
@@ -14,18 +19,33 @@ import {
   renderHeatmap,
   renderHistory,
   initHistoryFilters,
+  renderHeatmapTaskPanel,
   scheduleReminder
 } from './uiManager.js';
 
 // Track if we're already rendering to prevent cascading renders
 let isRendering = false;
+let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // 1. Apply stored settings (theme/accent) immediately
+  // 1. Get current user first
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.warn('No user logged in. App will not load tasks.');
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;"><h1>Please log in</h1><p>You must be logged in to use this app.</p></div>';
+    return;
+  }
+  
+  currentUser = user;
+  setCurrentUser(user);
+  console.log('Logged in as:', user.id);
+
+  // 2. Apply stored settings (theme/accent) immediately
   SettingsManager.init();
 
-  // 2. Load tasks (async now because of Supabase)
+  // 3. Load tasks (async now because of Supabase)
   await TaskManager.load();
 
   // 3. Render everything
@@ -33,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMotivation();
   renderHeatmap();
   renderHistory();
+  renderHeatmapTaskPanel();
 
   // 4. Wire up forms and settings panel
   initTaskForm();
@@ -60,11 +81,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderAll();
       renderHeatmap();
       renderHistory();
+      renderHeatmapTaskPanel();
       setTimeout(() => { isRendering = false; }, 100);
     }
   });
 
-  // 8. Schedule midnight refresh for recurring tasks
+    // 8. Schedule midnight refresh for recurring tasks
   scheduleMidnightRefresh();
 });
 

@@ -1,4 +1,16 @@
 import { supabase } from "./supabaseClient.js"
+
+// Global user context for data isolation
+let currentUser = null;
+
+function setCurrentUser(user) {
+  currentUser = user;
+}
+
+function getCurrentUserId() {
+  return currentUser?.id || null;
+}
+
 /**
  * storageManager.js
  * Centralized LocalStorage interface.
@@ -40,10 +52,13 @@ const StorageManager = {
   remove(key) { localStorage.removeItem(key); },
 
  async getTasks() {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
 
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
+    .eq('user_id', userId)
 
   if (error) {
     console.error('Error loading tasks:', error)
@@ -93,11 +108,17 @@ const StorageManager = {
 },
 
 async saveTasks(tasks) {
+  const userId = getCurrentUserId();
+  if (!userId) {
+    console.error('No user logged in, cannot save tasks');
+    return false;
+  }
 
   // Get existing tasks to identify new ones vs updates
   const { data: existingTasks, error: fetchError } = await supabase
     .from("tasks")
-    .select("id");
+    .select("id")
+    .eq('user_id', userId);
 
   const existingIds = new Set(existingTasks?.map(t => t.id) || []);
 
@@ -126,6 +147,7 @@ async saveTasks(tasks) {
         date: t.date,
         completed: t.completed || false,
         description: JSON.stringify(extraData),
+        user_id: userId,
       };
     });
 
@@ -164,7 +186,8 @@ async saveTasks(tasks) {
       const { error: updateError } = await supabase
         .from("tasks")
         .update(cleanTask)
-        .eq('id', task.id);
+        .eq('id', task.id)
+        .eq('user_id', userId);
 
       if (updateError) {
         console.error(`Error updating task ${task.id}:`, updateError.message);
@@ -177,10 +200,14 @@ async saveTasks(tasks) {
 },
 
 async deleteTask(id) {
+  const userId = getCurrentUserId();
+  if (!userId) return false;
+  
   const { error } = await supabase
     .from("tasks")
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', userId);
 
   if (error) {
     console.error('Error deleting task:', error.message);
@@ -248,4 +275,4 @@ function todayStr() {
   return new Date().toISOString().slice(0,10);
 }
 
-export { StorageManager, todayStr };
+export { StorageManager, todayStr, setCurrentUser, getCurrentUserId };

@@ -40,6 +40,7 @@ function getHeatmapData(days = 365) {
       date: dateStr,
       total: 0,
       completed: 0,
+      percentage: 0,
       level: 0
     };
   }
@@ -54,24 +55,25 @@ function getHeatmapData(days = 365) {
     }
   });
 
-  // Calculate intensity levels (0-4)
+  // Calculate intensity levels and percentages based on completion rate
   Object.values(heatmap).forEach(day => {
-    day.level = calculateLevel(day.completed);
+    day.percentage = day.total > 0 ? Math.round((day.completed / day.total) * 100) : 0;
+    day.level = calculateLevel(day.percentage);
   });
 
   return heatmap;
 }
 
 /**
- * Calculate heatmap intensity level based on completed tasks
- * @param {number} completed - Number of completed tasks
+ * Calculate heatmap intensity level based on completion percentage
+ * @param {number} percentage - Completion percentage (0-100)
  * @returns {number} Level 0-4
  */
-function calculateLevel(completed) {
-  if (completed === 0) return 0;
-  if (completed <= 2) return 1;
-  if (completed <= 4) return 2;
-  if (completed <= 6) return 3;
+function calculateLevel(percentage) {
+  if (percentage === 0) return 0;
+  if (percentage <= 25) return 1;
+  if (percentage <= 50) return 2;
+  if (percentage <= 75) return 3;
   return 4;
 }
 
@@ -187,6 +189,35 @@ async function refresh() {
   notify();
 }
 
+/**
+ * Get tasks for a specific date
+ * @param {string} date - Date string (YYYY-MM-DD)
+ * @returns {Array} Tasks for that date
+ */
+function getTasksByDate(date) {
+  const allTasks = TaskManager.getAllTasks();
+  return allTasks.filter(task => task.date === date);
+}
+
+/**
+ * Get task statistics for a specific date
+ * @param {string} date - Date string (YYYY-MM-DD)
+ * @returns {Object} Stats for that date
+ */
+function getTaskStatsByDate(date) {
+  const tasks = getTasksByDate(date);
+  const completed = tasks.filter(t => t.completed).length;
+  const total = tasks.length;
+  
+  return {
+    date,
+    total,
+    completed,
+    pending: total - completed,
+    percentage: total > 0 ? Math.round((completed / total) * 100) : 0
+  };
+}
+
 export const HeatmapManager = {
   subscribe,
   refresh,
@@ -197,5 +228,8 @@ export const HeatmapManager = {
   getRangeStats,
   getTopProductiveDays,
   getActivityStreak,
-  calculateLevel
+  calculateLevel,
+  // New enhanced functions
+  getTasksByDate,
+  getTaskStatsByDate
 };
