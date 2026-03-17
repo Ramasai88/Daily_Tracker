@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusFlow — Coding Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ─── TOP BAR ───────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">Focus<span>Flow</span></div>
+      <nav class="nav-pills">
+        <a href="index.html"  class="nav-pill">Dashboard</a>
+        <a href="coding.html" class="nav-pill active">Coding Tracker</a>
+      </nav>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="theme-toggle" title="Toggle theme">☀</button>
+      <button class="btn btn-primary" id="add-platform-btn">+ Add Platform</button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN CONTENT ──────────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Date Hero -->
+    <div class="date-hero">
+      <div class="today-label">Coding Practice</div>
+      <h1 id="today-date-coding">Track Your <span class="accent-dot">Progress</span></h1>
+    </div>
+
+    <div class="dashboard-grid">
+
+      <!-- CODING STREAK CARD -->
+      <div class="glass-card" id="coding-streak-card">
+        <div class="card-header">
+          <h2>Coding Streak</h2>
+          <span class="card-icon">🔥</span>
+        </div>
+        <div class="streak-display coding-streak-card">
+          <div class="streak-fire">💻</div>
+          <div>
+            <div class="streak-num" id="coding-streak-count">0</div>
+            <div class="streak-label">Day Streak</div>
+          </div>
+          <div class="streak-info">
+            <div class="streak-best">Best: <strong id="coding-streak-best">0</strong> days</div>
+            <div class="streak-best" style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">Solve ≥ 1 problem/day</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES CARD -->
+      <div class="glass-card card-wide" id="card-coding-notes">
+        <div class="card-header">
+          <h2>Coding Notes & Insights</h2>
+          <span class="card-icon">📝</span>
+        </div>
+        <textarea class="coding-notes-area" id="coding-notes" placeholder="Write your learnings, problem patterns, approaches, or reminders...
+&#10;Example:
+• Two pointer technique — great for sorted arrays
+• Sliding window = O(n) substring problems
+• DP: think about subproblems + memoization"></textarea>
+      </div>
+
+    </div>
+
+    <!-- PLATFORMS GRID (rendered by JS) -->
+    <div style="margin-top: 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-family:var(--font-display);font-size:1.1rem;">Practice Platforms</h2>
+        <button class="btn btn-ghost btn-sm" id="add-platform-btn-2">+ Add Platform</button>
+      </div>
+      <div class="platforms-grid" id="platforms-container"></div>
+    </div>
+
+  </main>
+</div><!-- /app-wrapper -->
+
+<script type="module" src="coding.js"></script>
+<script type="module">
+  import { SettingsManager } from './settingsManager.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set date
+    const dateEl = document.getElementById('today-date-coding');
+    if (dateEl) {
+      const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+      dateEl.innerHTML = new Date().toLocaleDateString(undefined, opts).replace(',', '<span class="accent-dot">,</span>');
+    }
+
+    // Theme toggle
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+      const s = SettingsManager.get();
+      SettingsManager.update({ theme: s.theme === 'dark' ? 'light' : 'dark' });
+    });
+
+    // Second add platform button
+    document.getElementById('add-platform-btn-2')?.addEventListener('click', () => {
+      document.getElementById('add-platform-btn').click();
+    });
+  });
+</script>
+</body>
+</html>

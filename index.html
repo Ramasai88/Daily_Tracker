@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusFlow — Daily Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ─── TOP BAR ───────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">Focus<span>Flow</span></div>
+      <nav class="nav-pills">
+        <a href="index.html"  class="nav-pill active">Dashboard</a>
+        <a href="coding.html" class="nav-pill">Coding Tracker</a>
+      </nav>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="theme-toggle" title="Toggle theme">☀</button>
+      <button class="btn btn-ghost" id="settings-btn" title="Settings">⚙ Settings</button>
+      <button class="btn btn-primary" id="add-task-btn">+ Add Task</button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN CONTENT ──────────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Date Hero -->
+    <div class="date-hero">
+      <div class="today-label">Today</div>
+      <h1 id="today-date">Loading<span class="accent-dot">.</span></h1>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid" id="dashboard-grid">
+
+      <!-- TASKS CARD -->
+      <div class="glass-card card-wide" id="card-tasks">
+        <div class="card-header">
+          <h2>Today's Tasks</h2>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="task-count-badge" class="badge">0</span>
+            <span class="card-icon">✓</span>
+          </div>
+        </div>
+        <div id="task-list"></div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-ghost" id="add-task-btn-2" style="width:100%">+ Add Task</button>
+        </div>
+      </div>
+
+      <!-- PROGRESS CARD -->
+      <div class="glass-card" id="card-progress">
+        <div class="card-header">
+          <h2>Daily Progress</h2>
+          <span class="card-icon">◎</span>
+        </div>
+        <div class="progress-big">
+          <div class="progress-ring-val" id="progress-percent">0%</div>
+          <div class="progress-ring-label">of daily goal</div>
+          <div class="progress-detail" id="progress-label">0 / 5 tasks</div>
+        </div>
+        <div class="progress-wrap" style="margin-top:16px;">
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STREAK CARD -->
+      <div class="glass-card" id="card-streak">
+        <div class="card-header">
+          <h2>Streak</h2>
+          <span class="card-icon">🔥</span>
+        </div>
+        <div class="streak-display">
+          <div class="streak-fire">🔥</div>
+          <div>
+            <div class="streak-num" id="streak-count">0</div>
+            <div class="streak-label">Day Streak</div>
+          </div>
+          <div class="streak-info">
+            <div class="streak-best">Best: <strong id="streak-best">0</strong> days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRIORITY MATRIX CARD -->
+      <div class="glass-card card-wide" id="card-matrix">
+        <div class="card-header">
+          <h2>Priority Matrix</h2>
+          <span class="card-icon" style="font-size:0.8rem; color:var(--text-muted);">High↑ / Low↓ · Less← / More→</span>
+        </div>
+        <div class="matrix-grid">
+          <div class="matrix-quadrant matrix-q1">
+            <div class="matrix-label">High Priority · Less Time</div>
+            <div id="matrix-q1"></div>
+          </div>
+          <div class="matrix-quadrant matrix-q2">
+            <div class="matrix-label">High Priority · More Time</div>
+            <div id="matrix-q2"></div>
+          </div>
+          <div class="matrix-quadrant matrix-q3">
+            <div class="matrix-label">Low Priority · Less Time</div>
+            <div id="matrix-q3"></div>
+          </div>
+          <div class="matrix-quadrant matrix-q4">
+            <div class="matrix-label">Low Priority · More Time</div>
+            <div id="matrix-q4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1-4-7 PLAN CARD -->
+      <div class="glass-card card-wide" id="card-plan147">
+        <div class="card-header">
+          <h2>1–4–7 Rule Planner</h2>
+          <span class="card-icon">⬡</span>
+        </div>
+
+        <!-- 1 Big Task -->
+        <div class="plan-section">
+          <div class="plan-section-title">
+            <span class="plan-count">1</span> BIG Task
+          </div>
+          <div id="plan-big"></div>
+        </div>
+
+        <!-- 4 Medium Tasks -->
+        <div class="plan-section">
+          <div class="plan-section-title">
+            <span class="plan-count">4</span> Medium Tasks
+          </div>
+          <div id="plan-medium"></div>
+        </div>
+
+        <!-- 7 Small Tasks -->
+        <div class="plan-section">
+          <div class="plan-section-title">
+            <span class="plan-count">7</span> Small Tasks
+          </div>
+          <div id="plan-small"></div>
+        </div>
+      </div>
+
+      <!-- MOTIVATION CARD -->
+      <div class="glass-card" id="card-motivation">
+        <div class="card-header">
+          <h2>Motivation</h2>
+          <span class="card-icon">✦</span>
+        </div>
+        <div class="quote-text" id="daily-quote">"Loading..."</div>
+        <label class="form-label" style="margin-bottom:8px;">Your Notes</label>
+        <textarea class="motivation-notes" id="motivation-notes" placeholder="Write your thoughts, intentions, or reflections here..."></textarea>
+      </div>
+
+      <!-- ACTIVITY HEATMAP CARD -->
+      <div class="glass-card card-wide" id="card-heatmap">
+        <div class="card-header">
+          <h2>Activity Heatmap</h2>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge">🔥 <span id="heatmap-streak">0</span> day streak</span>
+          </div>
+        </div>
+        <div id="heatmap-container"></div>
+      </div>
+
+      <!-- TASK HISTORY CARD -->
+      <div class="glass-card card-wide" id="card-history">
+        <div class="card-header">
+          <h2>Task History</h2>
+          <span class="card-icon">📋</span>
+        </div>
+        <div class="history-filters">
+          <input type="text" class="form-input" id="history-search" placeholder="Search tasks..." style="flex:1;">
+          <select class="form-select" id="history-filter">
+            <option value="all">All Priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select class="form-select" id="history-range">
+            <option value="all">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+        <div id="history-stats" class="history-stats"></div>
+        <div id="history-list" class="history-list"></div>
+      </div>
+
+    </div><!-- /dashboard-grid -->
+  </main>
+
+  <!-- ─── SETTINGS PANEL ─────────────────────────────────────────────────────── -->
+  <aside class="settings-panel" id="settings-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:1rem;">Settings</h2>
+      <button class="icon-btn" id="settings-close">✕</button>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-section">
+      <h3>Appearance</h3>
+      <div class="setting-row">
+        <span class="setting-label">Accent Color</span>
+        <input type="color" id="s-accent" value="#7c6bff" style="width:40px;height:30px;border:none;background:none;cursor:pointer;border-radius:6px;">
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Theme</span>
+        <button class="pill-btn" id="theme-toggle-settings">Toggle Dark / Light</button>
+      </div>
+    </div>
+
+    <!-- Goal Settings -->
+    <div class="settings-section">
+      <h3>Daily Goal</h3>
+      <div class="form-group">
+        <label class="form-label">Goal Type</label>
+        <select class="form-select" id="s-goal-type">
+          <option value="tasks">Number of Tasks</option>
+          <option value="hours">Hours Worked</option>
+          <option value="custom">Custom Target</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Value</label>
+        <input type="number" class="form-input" id="s-goal-target" min="1" max="100" value="5">
+      </div>
+    </div>
+
+    <!-- Streak Settings -->
+    <div class="settings-section">
+      <h3>Streak Rule</h3>
+      <div class="form-group">
+        <label class="form-label">Rule</label>
+        <select class="form-select" id="s-streak-rule">
+          <option value="any">At least 1 task</option>
+          <option value="percent">Completion percentage</option>
+          <option value="custom">Custom task count</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Threshold (% or count)</label>
+        <input type="number" class="form-input" id="s-streak-threshold" min="1" max="100" value="80">
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── TASK MODAL ─────────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-title">Add New Task</h2>
+        <button class="icon-btn" id="modal-close">✕</button>
+      </div>
+
+      <form id="task-form">
+        <div class="form-group">
+          <label class="form-label">Task Title *</label>
+          <input type="text" class="form-input" id="tf-title" placeholder="What needs to be done?" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="tf-desc" placeholder="Optional details..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-input" id="tf-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-select" id="tf-priority">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Reminder Time</label>
+            <input type="time" class="form-input" id="tf-reminder">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Time (min)</label>
+            <input type="number" class="form-input" id="tf-estimate" min="0" max="480" placeholder="e.g. 30">
+          </div>
+        </div>
+
+        <div class="form-group" style="display:flex;gap:20px;flex-wrap:wrap;">
+          <label class="form-check">
+            <input type="checkbox" id="tf-reminder-enabled">
+            <span>Enable reminder notification</span>
+          </label>
+          <label class="form-check">
+            <input type="checkbox" id="tf-recurring">
+            <span>Recurring daily</span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div><!-- /app-wrapper -->
+
+<script type="module" src="app.js"></script>
+<script>
+  // Inline init for second add-task button
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('add-task-btn-2')?.addEventListener('click', () => {
+      document.getElementById('add-task-btn').click();
+    });
+    document.getElementById('theme-toggle-settings')?.addEventListener('click', () => {
+      document.getElementById('theme-toggle').click();
+    });
+  });
+</script>
+</body>
+</html>
