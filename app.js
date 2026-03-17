@@ -7,6 +7,17 @@ import { HeatmapManager } from './heatmapManager.js';
 import { HistoryManager } from './historyManager.js';
 import { supabase } from './supabaseClient.js';
 
+// 🔥 RUN THIS IMMEDIATELY (before anything else)
+const { data: { user } } = await supabase.auth.getUser();
+
+console.log("Early Auth Check:", user);
+
+if (!user) {
+  console.warn("No user → redirecting...");
+  window.location.replace("/login.html");
+  throw new Error("User not authenticated"); // HARD STOP
+}
+
 
 
 
@@ -29,18 +40,8 @@ let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  console.log("Auth check started");
-
-  // 1. Get current user first
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  console.log("User:", user);
-  
-  if (!user) {
-    console.warn('No user logged in. Redirecting to login...');
-    window.location.replace("/login.html");
-    return;
-  }
+  // User already verified at top level - proceed with app init
+  console.log("App initializing...");
   
   currentUser = user;
   setCurrentUser(user);
