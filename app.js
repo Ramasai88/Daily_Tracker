@@ -7,6 +7,16 @@ import { HeatmapManager } from './heatmapManager.js';
 import { HistoryManager } from './historyManager.js';
 import { supabase } from './supabaseClient.js';
 
+// 1. Early auth check
+const { data: { user } } = await supabase.auth.getUser();
+
+console.log("Early Auth Check:", user);
+
+if (!user) {
+  console.warn("No user → redirecting...");
+  window.location.replace("/login.html");
+  throw new Error("User not authenticated"); // HARD STOP
+}
 import {
   initTaskForm,
   renderAll,
